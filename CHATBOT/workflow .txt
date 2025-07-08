@@ -1,0 +1,49 @@
+1 --> we will write/get a dataset in.csv or .json like having 100s of faq's
+2 --> Convert this sentence into a vector (meaning) using an embedding model like MiniLM.
+3 --> Search your datasetfor the most similar question using FAISS
+4 --> The bot first searches dataset, and only if nothing fits well, it uses the AI to generate a new response with context given — all using the user's question and some company context.
+5 --> stt --> whisper
+6 --> tts --> pyttsx3
+7 --> HTTP API / Socket local host pr as of now
+8 --> 🖥️ Client Side --Record voice, send to server, show text, play bot reply
+9 --> 🧠 Server Side --Transcribe audio (STT), run RAG logic, synthesize voice (TTS), send response
+
+
+
+🔻 User Action (Client Side)
+   └── 🎤 Speak Question
+           ↓
+   🎙️ Record Audio (Browser/App)
+           ↓
+   📤 Send Audio to Server (HTTP/Sockets)
+
+🔻 Server Side (Backend Logic)
+   └── 🎧 Speech-to-Text (Whisper)
+           ↓
+   📝 Extract Text (User Question)
+           ↓
+   🧠 Embed Question (MiniLM / SentenceTransformer)
+           ↓
+   🔍 Search Dataset (FAISS - Vector Matching)
+           ↓
+   ❓ Match Found?
+       ├─ ✅ Yes → Use Matching Answer from Dataset
+       │       ↓
+       │  🗣️ Text-to-Speech (pyttsx3)
+       │       ↓
+       │  📤 Send Audio + Text to Client
+       │
+       └─ ❌ No → Use AI Model (Flan-T5 with Context)
+               ↓
+         🧠 AI Generates New Response
+               ↓
+         🗣️ Text-to-Speech (pyttsx3)
+               ↓
+         📤 Send Audio + Text to Client
+
+🔻 Client Side (Frontend)
+   └── 📥 Receive Text + Audio
+           ↓
+   💬 Show Response Text on Screen
+           ↓
+   🔊 Play Bot Voice (Audio Output)
