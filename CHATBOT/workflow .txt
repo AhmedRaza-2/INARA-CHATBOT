@@ -27,7 +27,7 @@
    🔍 Search Dataset (FAISS - Vector Matching)
            ↓
    ❓ Match Found?
-       ├─ ✅ Yes → Use Matching Answer from Dataset
+       ├─ ✅ Yes → Use Matching Answer from Dataset --> goes to ai model to enhance 
        │       ↓
        │  🗣️ Text-to-Speech (pyttsx3)
        │       ↓
@@ -47,3 +47,15 @@
    💬 Show Response Text on Screen
            ↓
    🔊 Play Bot Voice (Audio Output)
+
+
+
+
+
+User question
+    ↓
+Embed → FAISS → Top-k similar FAQ (from dataset)
+    ↓
+Pass user question + retrieved FAQs + company context → Gemini
+    ↓
+Gemini generates a tailored response
