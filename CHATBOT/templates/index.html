@@ -2,8 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inara Voice Chatbot</title>
   <link rel="stylesheet" href="/static/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1f4037, #99f2c8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .chat-container {
+      width: 90%;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #1f4037;
+    }
+
+    #chat-box {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .user, .bot {
+      margin-bottom: 12px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .user {
+      background: #99f2c8;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .bot {
+      background: #e0f7fa;
+      text-align: left;
+      margin-right: auto;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      background: #1f4037;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: #156e5a;
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
   <div class="chat-container">
@@ -12,49 +102,31 @@
 
     <div class="input-group">
       <input id="user-input" type="text" placeholder="Type or speak..." autofocus>
-      <button onclick="sendMessage()">Send</button>
-      <button onclick="startVoiceInput()">🎤 Speak</button>
+      <button onclick="sendMessage()" title="Send your message">Send</button>
+      <button onclick="startVoiceInput()" title="Use voice input">🎤</button>
     </div>
   </div>
+
   <script>
-    // Generate and store user_id and session_id in localStorage
-    if (!localStorage.getItem("user_id")) {
-      const uid = "user_" + Math.random().toString(36).substring(2, 9);
-      localStorage.setItem("user_id", uid);
-    }
-    const user_id = localStorage.getItem("user_id");
-  
-    if (!localStorage.getItem("session_id")) {
-      const sessionId = "sess_" + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem("session_id", sessionId);
-    }
-    const session_id = localStorage.getItem("session_id");
-  
-    // Send message to server
     async function sendMessage() {
       const input = document.getElementById("user-input");
       const message = input.value.trim();
       if (!message) return;
-  
+
       appendMessage("user", message);
       input.value = "";
-  
-      try {
-        const res = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message, session_id, user_id })
-        });
-  
-        const data = await res.json();
-        appendMessage("bot", data.response);
-        speakText(data.response);
-      } catch (err) {
-        appendMessage("bot", "❌ Server not responding. Try again.");
-      }
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      appendMessage("bot", data.response);
+      speakText(data.response);
     }
-  
-    // Append message to chat box
+
     function appendMessage(role, text) {
       const chatBox = document.getElementById("chat-box");
       const div = document.createElement("div");
@@ -63,31 +135,30 @@
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
-  
-    // Voice input
+
     function startVoiceInput() {
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
       recognition.lang = "en-US";
       recognition.interimResults = false;
-  
+
       recognition.start();
-  
+
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         document.getElementById("user-input").value = transcript;
-        sendMessage(); // auto send
+        sendMessage();
       };
-  
+
       recognition.onerror = (event) => {
         alert("🎤 Voice input failed: " + event.error);
       };
     }
-  
-    // Text-to-speech
+
     function speakText(text) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
       window.speechSynthesis.speak(utterance);
     }
   </script>
-  
+</body>
+</html>
